@@ -1,13 +1,19 @@
 import sys
 from infinispan.remotecache import RemoteCache
 
-remote_cache = RemoteCache(host='datagrid-hotrod', port=11333)
+hostname = 'datagrid-hotrod'
+port = 11333
+itemID = 'SalesItem13'
 
-remote_cache.put('SalesItem5', '500')
-salesItem5 = remote_cache.get('SalesItem5')
-print('Sales of item 5: ' + salesItem5)
+remote_cache = RemoteCache(host=hostname, port=port)
 
-remote_cache.put('SalesItem5', '550')
-salesItem5 = remote_cache.get('SalesItem5')
-print('Sales of item 5: ' + salesItem5)
+def addRecord(itemID):
+    [miss, val] = remote_cache.put_if_absent(itemID, '1', ret_prev=True)
+
+    if miss == False:
+        remote_cache.put(itemID, str(int(val)+1))
+
+addRecord(itemID)
+salesItem = remote_cache.get(itemID)
+print('Sales of item: ' + salesItem)
 
